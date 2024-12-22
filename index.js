@@ -48,7 +48,11 @@ async function run() {
       })
 
 
-   
+      // get featured services data from db
+      app.get('/services', async (req, res) => {
+        const result = await servicesCollection.find().limit(6).toArray()
+        res.send(result)
+      })
 
 
 
