@@ -36,16 +36,33 @@ async function run() {
     app.post('/add-service', async (req, res) => {
       const servicesData = req.body
       const result = await servicesCollection.insertOne(servicesData)
-      console.log(result)
       res.send(result)
     })
 
 
       // get all services data from db
       app.get('/all-services', async (req, res) => {
-        const result = await servicesCollection.find().toArray()
-        res.send(result)
-      })
+        const filter = req.query.filter;
+        const search = req.query.search;
+    
+        let query = {};
+    
+        if (search) {
+            query.serviceTitle = {
+                $regex: search,
+                $options: "i",
+            };
+        }
+  
+        if (filter) {
+            query.category = filter;
+        }
+    
+        const result = await servicesCollection.find(query).toArray();
+
+        res.send(result);
+    });
+    
 
 
       // get featured services data from db
