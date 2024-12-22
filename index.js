@@ -41,7 +41,14 @@ async function run() {
     })
 
 
-    
+      // get all services data from db
+      app.get('/all-services', async (req, res) => {
+        const result = await servicesCollection.find().toArray()
+        res.send(result)
+      })
+
+
+   
 
 
 
