@@ -10,16 +10,6 @@ app.use(express.json())
 
 
 
-
-
-
-
-
-
-
-
-
-
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ljf3d.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -35,6 +25,45 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+
+    // db create
+    const db = client.db('CriticizeIt')
+    const servicesCollection = db.collection('services')
+
+
+
+    // post a service
+    app.post('/add-service', async (req, res) => {
+      const servicesData = req.body
+      const result = await servicesCollection.insertOne(servicesData)
+      console.log(result)
+      res.send(result)
+    })
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
