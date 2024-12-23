@@ -82,17 +82,44 @@ async function run() {
 
     // get all services by a specific user
 
-    app.get('/myServices/:email', async (req,res)=>{
-      const email = req.params.email
-      const query ={ userEmail : email}
-      const result = await servicesCollection.find(query).toArray()
-      res.send(result)
-    })
-    // delete a review
+    app.get('/myServices/:email', async (req, res) => {
+      const email = req.params.email;
+      const searchQuery = req.query.search || ""; 
+    
+      const query = { userEmail: email };
+    
+      if (searchQuery) {
+        query.$or = [
+          { serviceTitle: { $regex: searchQuery, $options: 'i' } }, 
+         
+        ];
+      }
+    
+        const result = await servicesCollection.find(query).toArray();
+      
+        res.send(result);
+      
+    });
+    
+    
+    // delete a service
     app.delete('/service/:id', async (req,res)=>{
       const id = req.params.id
       const query = {_id : new ObjectId(id)}
       const result = await servicesCollection.deleteOne(query)
+      res.send(result)
+    })
+
+     // update a service
+     app.put('/update-service/:id', async (req,res)=>{
+      const id = req.params.id
+      const serviceData = req.body
+      const updated = {
+        $set : serviceData
+      }
+      const query = {_id : new ObjectId(id)}
+      const options = {upsert:true}
+      const result = servicesCollection.updateOne(query, updated, options)
       res.send(result)
     })
 
@@ -134,7 +161,18 @@ app.delete('/review/:id', async (req,res)=>{
   const result = await reviewCollection.deleteOne(query)
   res.send(result)
 })
-
+   // update a review
+   app.put('/update-review/:id', async (req,res)=>{
+    const id = req.params.id
+    const reviewData = req.body
+    const updated = {
+      $set : reviewData
+    }
+    const query = {_id : new ObjectId(id)}
+    const options = {upsert:true}
+    const result = reviewCollection.updateOne(query, updated, options)
+    res.send(result)
+  })
 
 
 
