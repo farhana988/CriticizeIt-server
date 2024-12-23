@@ -111,12 +111,20 @@ app.get ("/reviews", async (req,res)=>{
   res.send(result)
 })
 
- // get all services by a specific user
+ // get all reviews by a specific user
 
  app.get('/myReviews/:email', async (req,res)=>{
   const email = req.params.email
   const query ={ userEmail : email}
   const result = await reviewCollection.find(query).toArray()
+  res.send(result)
+})
+
+// delete a review
+app.delete('/review/:id', async (req,res)=>{
+  const id = req.params.id
+  const query = {_id : new ObjectId(id)}
+  const result = await reviewCollection.deleteOne(query)
   res.send(result)
 })
 
