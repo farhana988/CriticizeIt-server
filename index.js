@@ -80,6 +80,15 @@ async function run() {
       res.send(result);
     });
 
+    // get all services by a specific user
+
+    app.get('/myServices/:email', async (req,res)=>{
+      const email = req.params.email
+      const query ={ userEmail : email}
+      const result = await servicesCollection.find(query).toArray()
+      res.send(result)
+    })
+
 
 
 
