@@ -25,9 +25,15 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // db create
+    // service db create
     const db = client.db("CriticizeIt");
     const servicesCollection = db.collection("services");
+
+    // review db
+    const reviewCollection = db.collection("reviews")
+
+
+    // ----------------service apis------------------
 
     // post a service
     app.post("/add-service", async (req, res) => {
@@ -79,11 +85,16 @@ async function run() {
 
 
 
+// ----------------review apis------------------
 
 
 
-
-
+// post a review
+app.post("/add-review", async (req, res) => {
+  const reviewData = req.body;
+  const result = await reviewCollection.insertOne(reviewData);
+  res.send(result);
+});
 
 
 
