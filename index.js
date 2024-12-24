@@ -208,8 +208,9 @@ app.post("/add-review", verifyToken, async (req, res) => {
 });
 
 // get all reviews
-app.get ("/reviews", async (req,res)=>{
-  const result = await reviewCollection.find().toArray()
+app.get ("/reviews/:serviceId", async (req,res)=>{
+  const { serviceId } = req.params;
+  const result = await reviewCollection.find({serviceId}).toArray()
   res.send(result)
 })
 
