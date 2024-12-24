@@ -32,6 +32,9 @@ async function run() {
     // review db
     const reviewCollection = db.collection("reviews")
 
+    // user db
+    const userCollection = db.collection("users")
+
 
     // ----------------service apis------------------
 
@@ -177,6 +180,19 @@ app.delete('/review/:id', async (req,res)=>{
 
 
 
+// ---------------user apis------------------
+
+app.post("/users", async (req, res) => {
+  const userData = req.body;
+  const result = await userCollection.insertOne(userData);
+  res.send(result);
+});
+
+// get users
+app.get ("/users", async (req,res)=>{
+  const result = await userCollection.find().toArray()
+  res.send(result)
+})
 
 
 
