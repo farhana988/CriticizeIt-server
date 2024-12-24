@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser')
 const port = process.env.PORT || 5000;
 
 const corsOptions = {
@@ -14,6 +15,7 @@ const corsOptions = {
 // middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser())
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -28,22 +30,54 @@ const client = new MongoClient(uri, {
   },
 });
 
+
+// verifyToken
+const verifyToken = (req, res, next) => {
+  const token = req.cookies?.token
+  // console.log('myservices',token)
+  if (!token) return res.status(401).send({ message: 'unauthorized access' })
+  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ message: 'unauthorized access' })
+    }
+    req.user = decoded
+  })
+
+  next()
+}
+
+
+
+
+
 async function run() {
   try {
      // ----------------jwt functions------------------
+
+    //  generate
     app.post('/jwt', async(req,res)=>{
       const email = req.body
+      // create token
       const token = jwt.sign(email, process.env.SECRET_KEY,{
         expiresIn:'3d'
       })
-      console.log(token)
+      // console.log(token)
       res.cookie('token', token , {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
       }).send({success:true})
     })
-
+    // logout
+    app.get('/logout', async (req, res) => {
+      res
+        .clearCookie('token', {
+          maxAge: 0,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        })
+        .send({ success: true })
+    })
 
 
 
@@ -110,10 +144,16 @@ async function run() {
     });
 
     // get all services by a specific user
-    app.get('/myServices/:email', async (req, res) => {
+    app.get('/myServices/:email',verifyToken, async (req, res) => {
+      const decodedEmail = req.user?.email
       const email = req.params.email;
+
+      if(decodedEmail !== email) {
+        return res.status(401).send({ message: 'unauthorized access' })
+      }
+
+
       const searchQuery = req.query.search || ""; 
-    
       const query = { userEmail: email };
     
       if (searchQuery) {
@@ -175,9 +215,15 @@ app.get ("/reviews", async (req,res)=>{
 
  // get all reviews by a specific user
 
- app.get('/myReviews/:email', async (req,res)=>{
+ app.get('/myReviews/:email',verifyToken, async (req,res)=>{
   const email = req.params.email
   const query ={ userEmail : email}
+
+  const decodedEmail = req.user?.email
+  if(decodedEmail !== email) {
+    return res.status(401).send({ message: 'unauthorized access' })
+  }
+
   const result = await reviewCollection.find(query).toArray()
   res.send(result)
 })
