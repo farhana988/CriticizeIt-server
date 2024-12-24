@@ -99,7 +99,7 @@ async function run() {
     // ----------------service apis------------------
 
     // post a service
-    app.post("/add-service", async (req, res) => {
+    app.post("/add-service", verifyToken, async (req, res) => {
       const servicesData = req.body;
       const result = await servicesCollection.insertOne(servicesData);
       res.send(result);
@@ -171,7 +171,7 @@ async function run() {
     
     
     // delete a service
-    app.delete('/service/:id', async (req,res)=>{
+    app.delete('/service/:id', verifyToken, async (req,res)=>{
       const id = req.params.id
       const query = {_id : new ObjectId(id)}
       const result = await servicesCollection.deleteOne(query)
@@ -179,7 +179,7 @@ async function run() {
     })
 
      // update a service
-     app.put('/update-service/:id', async (req,res)=>{
+     app.put('/update-service/:id', verifyToken, async (req,res)=>{
       const id = req.params.id
       const serviceData = req.body
       const updated = {
@@ -201,7 +201,7 @@ async function run() {
 
 
 // post a review
-app.post("/add-review", async (req, res) => {
+app.post("/add-review", verifyToken, async (req, res) => {
   const reviewData = req.body;
   const result = await reviewCollection.insertOne(reviewData);
   res.send(result);
@@ -215,7 +215,7 @@ app.get ("/reviews", async (req,res)=>{
 
  // get all reviews by a specific user
 
- app.get('/myReviews/:email',verifyToken, async (req,res)=>{
+ app.get('/myReviews/:email', verifyToken, async (req,res)=>{
   const email = req.params.email
   const query ={ userEmail : email}
 
@@ -229,14 +229,14 @@ app.get ("/reviews", async (req,res)=>{
 })
 
 // delete a review
-app.delete('/review/:id', async (req,res)=>{
+app.delete('/review/:id', verifyToken, async (req,res)=>{
   const id = req.params.id
   const query = {_id : new ObjectId(id)}
   const result = await reviewCollection.deleteOne(query)
   res.send(result)
 })
    // update a review
-   app.put('/update-review/:id', async (req,res)=>{
+   app.put('/update-review/:id', verifyToken, async (req,res)=>{
     const id = req.params.id
     const reviewData = req.body
     const updated = {
