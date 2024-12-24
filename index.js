@@ -2,12 +2,17 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const jwt = require('jsonwebtoken')
 const port = process.env.PORT || 5000;
 
-
+const corsOptions = {
+  origin: ['http://localhost:5173'],
+  credentials: true,
+  optionalSuccessStatus: 200,
+}
 
 // middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 
@@ -25,6 +30,27 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+     // ----------------jwt functions------------------
+    app.post('/jwt', async(req,res)=>{
+      const email = req.body
+      const token = jwt.sign(email, process.env.SECRET_KEY,{
+        expiresIn:'3d'
+      })
+      console.log(token)
+      res.cookie('token', token , {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+      }).send({success:true})
+    })
+
+
+
+
+
+
+    // ---------------- database creation ------------------
+
     // service db create
     const db = client.db("CriticizeIt");
     const servicesCollection = db.collection("services");
@@ -84,7 +110,6 @@ async function run() {
     });
 
     // get all services by a specific user
-
     app.get('/myServices/:email', async (req, res) => {
       const email = req.params.email;
       const searchQuery = req.query.search || ""; 
