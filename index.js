@@ -112,6 +112,7 @@ async function run() {
     app.get("/all-services", async (req, res) => {
       const filter = req.query.filter;
       const search = req.query.search;
+      const sort = req.query.sort;
 
       let query = {};
 
@@ -126,14 +127,19 @@ async function run() {
         query.category = filter;
       }
 
-      const result = await servicesCollection.find(query).toArray();
+      let options = {};
+      if (sort) {
+        options.sort = { price: sort === 'asc' ? 1 : -1 }; 
+      }
+
+      const result = await servicesCollection.find(query,options).toArray();
 
       res.send(result);
     });
 
     // get featured services data 
     app.get("/services", async (req, res) => {
-      const result = await servicesCollection.find().limit(6).toArray();
+      const result = await servicesCollection.find().limit(8).toArray();
       res.send(result);
     });
     
